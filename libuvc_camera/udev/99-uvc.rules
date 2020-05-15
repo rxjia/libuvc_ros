@@ -1,0 +1,2 @@
+# UVC cameras ks1a552
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="2304", ATTRS{idProduct}=="5220", MODE="0666"

@@ -117,13 +117,17 @@ void CameraDriver::ReconfigureCallback(UVCCameraConfig &new_config, uint32_t lev
   if (state_ == kRunning) {
 #define PARAM_INT(name, fn, value) if (new_config.name != config_.name) { \
       int val = (value);                                                \
-      if (uvc_set_##fn(devh_, val)) {                                   \
-        ROS_WARN("Unable to set " #name " to %d", val);                 \
+      int ret = 0;\
+      if (ret = uvc_set_##fn(devh_, val)) {                                   \
+        ROS_WARN("Err: %d, Unable to set " #name " to %d", ret, val);                 \
         new_config.name = config_.name;                                 \
       }                                                                 \
+      else{\
+        ROS_INFO("Set " #name " to %d", val); \
+      }\
     }
 
-    PARAM_INT(scanning_mode, scanning_mode, new_config.scanning_mode);
+//    PARAM_INT(scanning_mode, scanning_mode, new_config.scanning_mode);
     PARAM_INT(auto_exposure, ae_mode, 1 << new_config.auto_exposure);
     PARAM_INT(auto_exposure_priority, ae_priority, new_config.auto_exposure_priority);
     PARAM_INT(exposure_absolute, exposure_abs, new_config.exposure_absolute * 10000);
@@ -147,12 +151,14 @@ void CameraDriver::ReconfigureCallback(UVCCameraConfig &new_config, uint32_t lev
     // TODO: privacy
     // TODO: backlight_compensation
     // TODO: contrast
-    // TODO: power_line_frequency
+    // TODO: power_line_frequency       todo in libuvc
+    // PARAM_INT(power_line_frequency, power_line_frequency, new_config.power_line_frequency);
     // TODO: auto_hue
     // TODO: saturation
     // TODO: sharpness
     // TODO: gamma
     // TODO: auto_white_balance
+    // PARAM_INT(auto_white_balance, white_balance_temperature_auto, new_config.auto_white_balance ? 1 : 0);
     // TODO: white_balance_temperature
     // TODO: white_balance_BU
     // TODO: white_balance_RV
