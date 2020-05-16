@@ -11,7 +11,8 @@
 
 #include <libuvc_camera/UVCCameraConfig.h>
 
-namespace libuvc_camera {
+namespace libuvc_camera
+{
 
 class CameraDriver {
 public:
@@ -73,6 +74,8 @@ private:
   bool config_changed_;
 
   camera_info_manager::CameraInfoManager cinfo_manager_;
+  int data_skip_;
+  int data_skip_counter_;
 };
 
 };

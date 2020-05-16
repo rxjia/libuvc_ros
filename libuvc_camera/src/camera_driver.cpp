@@ -54,6 +54,9 @@ CameraDriver::CameraDriver(ros::NodeHandle nh, ros::NodeHandle priv_nh)
     config_changed_(false),
     cinfo_manager_(nh) {
   cam_pub_ = it_.advertiseCamera("image_raw", 1, false);
+
+  data_skip_ += 1;
+  data_skip_counter_=0;
 }
 
 CameraDriver::~CameraDriver() {
@@ -163,7 +166,8 @@ void CameraDriver::ReconfigureCallback(UVCCameraConfig &new_config, uint32_t lev
     // TODO: white_balance_BU
     // TODO: white_balance_RV
   }
-
+  data_skip_ = new_config.data_skip + 1;
+  data_skip_counter_ = 0;
   config_ = new_config;
 }
 
@@ -239,16 +243,18 @@ void CameraDriver::ImageCallback(uvc_frame_t *frame) {
     memcpy(&(image->data[0]), rgb_frame_->data, rgb_frame_->data_bytes);
   }
 
+  if((++data_skip_counter_) % data_skip_ == 0) {
+    data_skip_counter_ = 0;
+    sensor_msgs::CameraInfo::Ptr cinfo(
+      new sensor_msgs::CameraInfo(cinfo_manager_.getCameraInfo()));
 
-  sensor_msgs::CameraInfo::Ptr cinfo(
-    new sensor_msgs::CameraInfo(cinfo_manager_.getCameraInfo()));
+    image->header.frame_id = config_.frame_id;
+    image->header.stamp = timestamp;
+    cinfo->header.frame_id = config_.frame_id;
+    cinfo->header.stamp = timestamp;
 
-  image->header.frame_id = config_.frame_id;
-  image->header.stamp = timestamp;
-  cinfo->header.frame_id = config_.frame_id;
-  cinfo->header.stamp = timestamp;
-
-  cam_pub_.publish(image, cinfo);
+    cam_pub_.publish(image, cinfo);
+  }
 
   if (config_changed_) {
     config_server_.updateConfig(config_);
