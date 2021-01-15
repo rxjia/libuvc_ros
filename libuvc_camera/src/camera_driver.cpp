@@ -155,7 +155,7 @@ void CameraDriver::ReconfigureCallback(UVCCameraConfig &new_config, uint32_t lev
     // TODO: backlight_compensation
     // TODO: contrast
     // TODO: power_line_frequency       todo in libuvc
-    // PARAM_INT(power_line_frequency, power_line_frequency, new_config.power_line_frequency);
+     PARAM_INT(power_line_frequency, power_line_frequency, new_config.power_line_frequency);
     // TODO: auto_hue
     // TODO: saturation
     // TODO: sharpness
